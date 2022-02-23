@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>基础轮播图</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        ul {
+            list-style: none;
+        }
+        #main {
+            width: 800px;
+            height: 500px;
+            position: relative;
+            left: 50%;
+            top: 40px;
+            transform: translate(-50%);
+            overflow: hidden;
+        }
+        #dots {
+            position: absolute;
+            z-index: 100;
+            right: 10px;
+            bottom: 10px;
+        }
+        #dots li {
+            width: 15px;
+            height: 15px;
+            float: left;
+            border-radius: 50%;
+            border: 2px solid #fff ;
+            background: #8a8a8a;
+            margin: 10px;
+        }
+        #pictures {
+            position: absolute;
+        }
+        #pictures li {
+            width: 800px;
+            height: 500px;
+            border: none;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="main">
+        <ul id="dots">
+            <li style="background: white;"></li>
+            <li></li>
+            <li></li>
+            <li></li>
+        </ul>
+        
+        <ul id="pictures">
+            <li style="display: block;">
+                <img src="img-01.png" width="800">
+            </li>
+            <li>
+                <img src="img-02.jpg" width="800">
+            </li>
+            <li>
+                <img src="img-03.png" width="800">
+            </li>
+            <li>
+                <img src="img-05.png" width="800">
+            </li>
+        </ul>
+    </div>
+
+    <script>
+        window.onload = function() {
+            let dots = document.getElementById('dots');
+            let pictures = document.getElementById('pictures');
+            let liDots = dots.getElementsByTagName('li');
+            let liPictures = pictures.getElementsByTagName('li'); 
+            let timmer = null;
+            let count = 0; //用于图片索引
+            
+            timer = setInterval(autoplay, 1000);
+
+            for (let i = 0; i < liDots.length; i++) {
+                //鼠标移入
+                liDots[i].onmouseover = function() {
+                    clearInterval(timer); //鼠标移入的时候，画面停止（清除定时器）
+                    initial();
+                    this.style.backgroundColor = 'white';
+                    liPictures[i].style.display = 'block';
+                }
+
+                //鼠标移出的时候，定时器继续
+                liDots[i].onmouseout = function() {
+                    count = i; //下一张图要是当前的下一张，按照原来的定时器会跳跃
+                    timmer = null;
+                    timer = setInterval(autoplay, 1000);
+                }
+
+            }
+           
+            //初始化
+            function initial() {
+                for (let i = 0; i < liDots.length; i++) {
+                    liDots[i].style.backgroundColor = '#8a8a8a';
+                    liPictures[i].style.display = 'none';
+                }
+            }
+            function autoplay() {
+                initial();
+                liDots[count].style.backgroundColor = 'white';
+                liPictures[count].style.display = 'block';
+                count++;
+                if (count % liDots.length == 0) count = 0;
+            }
+        }
+    </script>
+</body>
+</html>

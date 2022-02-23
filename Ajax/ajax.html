@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        ajax({
+            type: '', //请求方式，默认get
+            url: '', //请求地址，不能为空
+            data: '', //发送的数据，默认为空
+            async: '', //是否异步，默认为true(异步)
+            success: function(data) {}, //请求成功的方法
+            error: function(err) {}, //请求失败的方法
+
+        });
+        //封装一个函数实现ajax数据的获取和传输
+        function ajax(option) {
+            let xhr = new XMLHttpRequest();
+            //1.设置请求类型
+            option.type = option.type || 'get';
+            //2.设置接口地址
+            if (!option.url) {
+                throw new Error('接口地址不能为空');
+            }
+            /*
+                这里的Object.prototype.toString()方法会返回一个形如'[object XXX]'的字符串
+                比如:
+                ({}).toString() => "[object Object]"
+                Math.toString() => "[object Math]"
+
+            */
+           //3.操作数据(条件为 数据存在&&是对象)
+            if (option.data && Object.prototype.toString.call(option.data) === '[object Object]') {
+                option.data = objToString(option.data);
+            } 
+            //4.数据存在，请求方式是get的时候
+            if(option.data && option.type.toLowerCase() === 'get') {
+                option.url += `?${option.data}`;
+            }
+            //5.是否异步
+            if (option.async === 'false' || option.async === false) {
+                option.async = false;
+            } else {
+                option.async = true;
+            }
+            xhr.open(option.type, option.url, option.async);
+            //6.数据存在且请求方式是post
+            if (option.data && option.type.toLowerCase() === 'post') {
+                xhr.setRequestHeader('content-type', 'application/x-www-form-urlencoded');
+                xhr.send(option.data);
+            } else  {
+                xhr.send();
+            }
+            //7.是否异步=>是否需要监听
+            if (option.async) {
+                //异步 需要监听
+                xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        option.success && option.success(xhr.responseText);
+                    } else {
+                       option.error && option.error('接口地址有误');
+                    }
+                }
+            };
+            } else {
+                //同步 无需监听 接口地址正确即可
+                if (xhr.status === 200) {
+                    option.success && option.success(xhr.responseText);
+                } else {
+                    option.error && option.error('接口地址有误');
+                }
+            }
+            
+
+        }
+
+        function objToString(obj) {
+            if (Object.prototype.toString.call(obj) === '[object Object]') {
+                let arr = [];
+                for (let i in obj) {
+                    arr.push(i + '=' + obj[i]); //key=value
+                }
+                return arr.join('&'); //"key1=value1&key2=value2"
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>css轮播图</title>
+    <style>
+        /* :root {
+            --width: 100px;
+            --height: 100px
+        } */
+        * {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        div.slide {
+            /* width: var(--width); */
+            width: 400px;
+            height: 150px;
+            border: 2px dashed black;
+            position: relative;
+            overflow: hidden;
+        }
+        ul.list {
+            width: 1600px;
+            overflow: hidden;
+            position: relative;
+            z-index: -1 ;
+            animation: move 5s ease 1s infinite;
+        }
+
+        /*
+            思路：让ul在父容器中滑动
+        */
+        /* 1.基础移动 */
+        @keyframes move {
+            0% {
+                transform: translate(0);
+            }
+            33% {
+                transform: translate(-400px);
+            }
+            66% {
+                transform: translate(-800px);
+            }
+            100% {
+                transform: translate(-1200px);
+            }
+        }
+        li.item {
+            width: 400px;
+            height: 150px;
+            box-sizing: border-box;
+            border: 1px solid pink;
+            background-color: aquamarine;
+            color: #fff;
+            font-size: 28px;
+            text-align: center;
+            line-height: 150px;
+            float: left;
+        }
+        .labels {
+            position: absolute;
+            bottom: 10px;
+            z-index: 1;
+            width: inherit;
+            display: none;
+            justify-content: center;
+            /* background-color: red; */
+        }
+        .slide:hover .labels {
+            display: flex;
+        }
+        .slide:hover {
+            cursor: pointer;
+        }
+        .labels label {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin: 0 5px;
+            background-color: rgba(0, 0, 0, 0.08);
+            box-sizing: border-box;
+            cursor: pointer;
+        }
+        input {
+            display: none;
+        }
+        /* 选中状态 */
+        input[id=pic1]:checked ~.labels label[for="pic1"],
+        input[id=pic2]:checked ~.labels label[for="pic2"],
+        input[id=pic3]:checked ~.labels label[for="pic3"] {
+            background-color: white;
+        }
+        /*切换到对应图片*/
+        input[id=pic1]:checked ~ ul.list {
+            transform: translate(0);
+        }
+        input[id=pic2]:checked ~ ul.list {
+            transform: translate(-400px);
+        }
+        input[id=pic3]:checked ~ ul.list {
+            transform: translate(-800px);
+        }
+        .slide:hover .list {
+            animation-play-state: paused;
+            animation: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide">
+        <input type="radio" name="pic" id="pic1" checked>
+        <input type="radio" name="pic" id="pic2">
+        <input type="radio" name="pic" id="pic3">
+        <div class="labels">
+            <label for="pic1"></label>
+            <label for="pic2"></label>
+            <label for="pic3"></label>
+        </div>
+        <ul class="list">
+            <li class="item">1</li>
+            <li class="item">2</li>
+            <li class="item">3</li>
+            <!-- 新增用于无缝轮播 -->
+            <li class="item">1</li>
+        </ul>
+    </div>
+</body>
+</html>

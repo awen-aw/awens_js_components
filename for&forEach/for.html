@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>跳出for循环</title>
+</head>
+<body>
+    <script>
+        const arr = [1, 2 , 3, 4, 5];
+        //continue停止本次循环，继续下一次循环
+        for (let i = 0; i < arr.length; i++) {
+            if (arr[i] ===  2) continue;
+            console.log(arr[i], 'for-continue');
+        }
+
+        console.log('----------');
+        //break用于跳出循环
+        for (let i = 0; i < arr.length; i++) {
+            if (arr[i] === 2) break;
+            console.log(arr[i], 'for-break');
+        }
+
+        console.log('----------');
+        //for循环中用return语句，会直接跳出循环，但是要放在函数中
+        function test() {
+            for (let i = 0; i < arr.length; i++) {
+                for (let j = 0; j < i; j++) {
+                    if (arr[j] === 2) return;
+                    console.log(arr[j] , 'for-func-return');
+                }
+            }
+        }
+        test();
+
+        console.log('----------');
+        //label标签
+        outer:
+        for (let i = 0; i < arr.length; i++) {
+            inner:
+            for(let j = 0; j < i + 2; j++) {
+                if (arr[j] === 2) break outer;
+                console.log(j, 'label-inner');
+            }
+        }
+
+        console.log('----------');
+        //froEach中不能使用continue和break
+        //forEach中使用return语句跳出当前循环，继续下一次循环
+        arr.forEach((item, index) => {
+            if (item === 2) return;
+            console.log(item, 'forEach-return');
+        });
+
+        console.log('----------');
+        //forEach如果要跳出整个循环，需要throw抛异常
+        try {
+            arr.forEach((item, index) => {
+                if (item === 2) throw new Error('跳出forEach循环');
+                console.log(item, 'forEach-throwError');
+            });
+        } catch (e) {
+            console.log(e);
+        }
+        
+    </script>
+</body>
+</html>

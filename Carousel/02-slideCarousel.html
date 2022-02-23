@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>滑动的轮播图</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        ul {
+            list-style: none;
+        }
+        #main {
+            width: 800px;
+            height: 500px;
+            position: relative;
+            margin: 80px auto 0;
+            overflow: hidden;
+            
+        }
+        #left,#right {
+            position: absolute;
+            top: 50%;
+            transform: translate(0, -50%);
+            z-index: 100;
+        }
+        #left {
+            left: 0;
+        }
+        #right {
+            right: 0;    
+        }
+        #dots {
+            position: absolute;
+            z-index: 100;
+            right: 10px;
+            bottom: 10px;
+        }
+        #dots li {
+            width: 15px;
+            height: 15px;
+            float: left;
+            border-radius: 50%;
+            border: 2px solid #fff ;
+            background: #8a8a8a;
+            margin: 10px;
+        }
+        #dots .active {
+            background-color: #fff;
+        }
+        #pictures {
+            display: flex;
+            position: relative;
+            width: 100%;
+            height: 100%;
+            left: 0px;
+            transition: 0.5s ease;
+            
+        }
+        #pictures img {
+            width: 800px;
+            height: 500px;
+        }
+    </style>
+</head>
+<body>
+    <div id="main">
+        <img id="left" src="left.svg" width="50">
+        <img id="right" src="right.svg" width="50">
+        <ul id="dots">
+            <li class="active" data-n="0"></li>
+            <li data-n="1"></li>
+            <li data-n="2"></li>
+            <li data-n="3"></li>
+        </ul>
+        <div id="pictures">
+            <img src="img-01.png" width="800">
+            <img src="img-02.jpg" width="800">
+            <img src="img-03.png" width="800">
+            <img src="img-05.png" width="800">
+        </div> 
+    </div>
+
+    <script>
+        window.onload = function() {
+            let main = document.querySelector('#main');
+            let left = document.querySelector('#left');
+            let right = document.querySelector('#right');
+            let dot = document.querySelector('#dots');
+            let picture = document.querySelector('#pictures');
+            let liDots = dot.querySelectorAll('li');
+            let imgs = picture.querySelectorAll('img');
+            let count = 0; //用于标记图片的索引，关键
+            let timer = null;
+    
+            let lock = true; //设置函数节流锁
+
+            picture.appendChild(picture.firstElementChild.cloneNode());
+            
+            /*
+                图片切换按钮：
+                1.左右按钮切换的思路就是先到假图，再切换到实际那个位置的那张图
+                2.左边按钮：
+                    临界点即第一张图，不需要过渡。
+                    所以要将transition关闭，
+                    用定时器替换过渡到最后一张图片的操作（真图->假图->实际要拉的图）。
+
+                3.右边按钮：
+                    临界点是第一张图，需要过渡。
+                    所以要将原来的transition关闭，
+                    用定时器替换过渡同一张图片的操作。（假图->真图）
+                4.总之就是拉取操作就用定时器完成。 
+
+                小圆点：
+                1.遍历小圆点列表，当count = index时，小圆点高亮
+                2.图片切换时，小圆点高亮随之切换
+
+                自动轮播：
+                1.设置setInterval()，函数为向右切换函数；
+                
+
+                鼠标移入和移出：
+                1.移入关闭定时器。
+                2.移出打开定时器，定时器在打开之前要先关闭，clearInterval，防止其他开很多定时器。
+            */
+
+            //自动轮播
+            timer = setInterval(handleRight, 2000);
+
+            //点击右按钮
+            right.addEventListener('click', handleRight);
+
+            //点击左按钮
+            left.addEventListener('click', handleLeft);
+
+             //小圆点 点击切换图片，使用事件委托
+            dot.addEventListener('click', (event) => {
+                //target事件目标，真正点击到的对象
+                if (event.target.nodeName.toLowerCase() === 'li') {
+                    const n = Number(event.target.getAttribute('data-n'));
+                    count = n;
+                    picture.style.left = -count * 800 + 'px';
+                    setDots();
+                }
+            });
+            
+            //鼠标移入main，停止自动轮播
+            main.addEventListener('mouseenter', () => {
+                clearInterval(timer);
+            });
+
+            //鼠标移出继续轮播
+            main.addEventListener('mouseleave', () => { 
+                //设表先关（设置定时器的时候要先关闭定时器）
+                clearInterval(timer);
+                timer = setInterval(handleRight, 2000);
+            });
+
+            //小圆点高亮函数
+            function setDots() { 
+                liDots.forEach((item, index) => {
+                    //index -> 0-5, count -> 0-4
+                    if (index === count) {
+                        item.classList.add('active');
+                    } else {
+                        item.classList.remove('active');
+                    }
+                })
+            }
+            
+            //向右切换函数
+            function handleRight() {
+                //判断锁
+                if (!lock) return;
+                count ++;
+                picture.style.left = -count * 800 + 'px';
+                picture.style.transition = '0.5s ease';
+                if (count % imgs.length === 0) {
+                    count = 0;
+                    setTimeout(() => {
+                        picture.style.left = 0;
+                        picture.style.transition = 'none';
+                    }, 500);
+                }
+                setDots();
+                //关锁
+                lock = false;
+                //开锁
+                setTimeout(() => {
+                    lock = true;
+                }, 500);
+            }
+
+            //向左切换函数
+            function handleLeft() {
+                if (!lock) return;
+                count --;
+                if (count === -1) {
+                    picture.style.left = -imgs.length * 800 + 'px';
+                    picture.style.transition = 'none';
+                    count = imgs.length - 1;
+                    setTimeout(() => {
+                        picture.style.left = -count * 800 + 'px';
+                        picture.style.transition = '0.5s ease';
+                    }, 0);
+                } else {
+                    picture.style.left = -count * 800 + 'px';
+                }
+                setDots();
+                lock = false;
+                setTimeout(() => {
+                    lock = true;
+                }, 500);
+            }
+            
+            
+
+            
+
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>实现深拷贝</title>
+</head>
+<body>
+    <script>
+        let obj = {
+            name: '张三',
+            sex: '男',
+            age: '18',
+            friends: ['小明', '小王', '小张'],
+            o: {},
+        }
+        obj.o = obj;
+        console.log(obj.o);
+        
+        /*
+            1.判断数据类型
+            2.存储类型 => 直接复制
+            3.引用类型 => 创建相同的结构，逐一复制结构体中的内容。如果复制内容仍为地址引用类型，就调用自己
+
+        */
+        //遍历目标对象的属性 => 属性值为引用类型时，继续遍历
+         //cache => 用于处理obj.o = obj的情况,防止无限展开，导致死循环
+        function deepClone (src, cache = []) {
+            let type = Object.prototype.toString.call(src).slice(8, -1);
+            let dst = null;
+            
+            for (let i = 0; i < cache.length; i++) {
+                if (src === cache[i].src){
+                    return cache[i].dst;
+                }
+            }
+            if (['Number', 'String', 'Boolean', 'Null', 'Undefined'].includes(type)) {
+                return src;
+            } else if (type === 'Array') {
+                dst = [];
+            } else if (type === 'Object') {
+                dst = {};
+            } else if (type === 'Date') {
+                dst = new Date(src);
+            } else if (type === 'RegExp') {
+                dst = new RegExp(src.source, src.flags);
+            } else if (type === 'Function') {
+                dst = src.bind(this);
+            }
+            cache.push({src: src, dst: dst});
+            for (const key in src) {
+                if (src.hasOwnProperty(key)) {
+                    dst[key] = deepClone(src[key], cache);
+                }
+               
+            }
+            return dst;
+    
+        }
+
+    </script>
+</body>
+</html>
